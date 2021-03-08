@@ -19,8 +19,8 @@ trigger: none
 
 resources:
   pipelines:
-    - pipeline: iac_ci
-      source: iac-ci
+    - pipeline: ci
+      source: iac_ci
 
 stages:
   - template: templates/iac_release.yaml
