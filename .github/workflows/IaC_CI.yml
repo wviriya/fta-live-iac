@@ -1,0 +1,47 @@
+# This is a basic workflow to help you get started with Actions
+
+name: IaC_CI
+
+# Controls when the action will run. 
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+    inputs:
+      filePath:
+        description: 'File path to Bicep file'
+        default: '${{ github.workspace }}\bicep\'
+        required: true
+      fileName:
+        description: 'File name of Bicep file'
+        default: 'main'
+        required: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Clone and Install BICEP
+        run: .\pipelines\scripts\install_Bicep.ps1 -installPath '${{ github.workspace }}\bicep'
+        shell: powershell
+        
+      - name: Clone and Install ARMTTK
+        run: .\pipelines\scripts\install_ARMTTK.ps1 -installPath '${{ github.workspace }}'
+        shell: powershell
+        
+      - name: Build the ARM Template from the BICEP file
+        run: ${{ github.workspace }}\bicep\bicep.exe build '${{ github.event.inputs.filePath }}${{ github.event.inputs.fileName }}.bicep'
+        shell: powershell 
+      
+      - name: Linting - ARM-TTK Validate ARM templates adhere to best practice
+        run: .\pipelines\linting\ARM-TTK_linting.ps1 -ARMTTKModuleDirectory '${{ github.workspace }}\arm-ttk-latest' -ARMTTKResultsDirectory '${{ github.workspace }}' -TemplatesToScanDirectory '${{ github.workspace }}\templates'
+        shell: powershell 
+    
