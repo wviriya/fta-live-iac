@@ -8,10 +8,6 @@ on:
   workflow_dispatch:
   
     inputs:
-      filePath:
-        description: 'File path to Bicep file'
-        default: '${{ github.workspace }}\bicep\'
-        required: true
       fileName:
         description: 'File name of Bicep file'
         default: 'main'
@@ -38,7 +34,7 @@ jobs:
         shell: powershell
         
       - name: Build the ARM Template from the BICEP file
-        run: ${{ github.workspace }}\bicep\bicep.exe build '${{ github.event.inputs.filePath }}${{ github.event.inputs.fileName }}.bicep'
+        run: ${{ github.workspace }}\bicep\bicep.exe build '${{ github.workspace }}\bicep\${{ github.event.inputs.fileName }}.bicep'
         shell: powershell 
       
       - name: Linting - ARM-TTK Validate ARM templates adhere to best practice
